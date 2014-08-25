@@ -33,7 +33,7 @@ module.exports = function(grunt) {
 
 			var unsupported = false;
 			options.platforms.forEach(function(platform){
-				var supportedPlatforms = ['darwin','win32','linux'];
+				var supportedPlatforms = ['darwin-x64','win32-ia32','linux-x64'];
 				if (supportedPlatforms.indexOf(platform) == -1) {
 					grunt.log.error('Unsupported platform: [' + platform + ']');
 					unsupported = true;
@@ -141,10 +141,17 @@ module.exports = function(grunt) {
 
 	function downloadIndividualRelease(options, releaseInfo, platform, callback)
 	{
-		var assetName = "atom-shell-" + options.atom_shell_version + "-" + platform + ".zip";
-		var assetUrl = _.find(releaseInfo.assets, {'name' : assetName }).url;
-		var assetSize = _.find(releaseInfo.assets, {'name' : assetName }).size;
-		var saveLocation = path.join(options.cache_dir,assetName);
+		try {
+			var assetName = "atom-shell-" + options.atom_shell_version + "-" + platform + ".zip";
+			var assetUrl = _.find(releaseInfo.assets, {'name' : assetName }).url;
+			var assetSize = _.find(releaseInfo.assets, {'name' : assetName }).size;
+			var saveLocation = path.join(options.cache_dir,assetName);
+		}
+		catch (e) {
+			console.error(assetName, assetUrl, assetSize, saveLocation);
+			console.error(e.stack || e.message);
+			throw new Error('caught');
+		}
 		
 		if (fs.existsSync(saveLocation))
 		{
